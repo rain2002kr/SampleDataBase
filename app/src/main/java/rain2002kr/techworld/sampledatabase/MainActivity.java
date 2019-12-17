@@ -2,6 +2,7 @@ package rain2002kr.techworld.sampledatabase;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -28,8 +29,8 @@ public class MainActivity extends AppCompatActivity {
         button = (Button) findViewById( R.id.button );
         button2 = (Button) findViewById( R.id.button2 );
         button3 = (Button) findViewById( R.id.button3 );
-        /*
         button4 = (Button) findViewById( R.id.button4 );
+        /*
         button5 = (Button) findViewById( R.id.button5 );
         button6 = (Button) findViewById( R.id.button6 );
         */
@@ -66,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
                 insertInfo( tableName, name, age );
             }
         } );
+        //select data
+        button4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String tableName = editText2.getText().toString().trim();
+                executeQuery(tableName);
+            }
+        });
     }
     public void createDatabase(String name){
         println( "createDatabase 호출 됨" );
@@ -80,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
     public void createTable(String name){
         println( "create Table 호출 됨" );
         if (database != null){
-            String sql ="create table " + name +"(name text)";
+            String sql ="create table " + name +"(_id integer PRIMARY KEY autoincrement, name text, age text)";
             try {
                 database.execSQL( sql );
                 println( "table 생성됨" + name );
@@ -102,6 +111,24 @@ public class MainActivity extends AppCompatActivity {
         } else {
             println( "먼저 데이터베이스를 오픈하세요" );
         }
+    }
+    public void executeQuery(String tableName){
+        println("executeQuery 호출 됨");
+
+        String sql = "select _id, name, age from " + tableName;
+        Cursor cursor = database.rawQuery(sql, null);
+
+        int recordCount = cursor.getCount();
+        println("레코드 개수" + recordCount);
+
+        for(int i=0; i < recordCount; i++){
+            cursor.moveToNext();
+            int id = cursor.getInt(0);
+            String name = cursor.getString(1);
+            String age = cursor.getString(2);
+            println("레코드#" + i + "id : "+ id +" : " + name + " , " + age);
+        }
+        cursor.close();
     }
 
     public void println(String data){
